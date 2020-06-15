@@ -16,6 +16,10 @@
 		10B880C12498292100D422E3 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 10B880C02498292100D422E3 /* Assets.xcassets */; };
 		10B880C42498292100D422E3 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 10B880C22498292100D422E3 /* LaunchScreen.storyboard */; };
 		10B880CC24982DB800D422E3 /* MyUtils.swift in Sources */ = {isa = PBXBuildFile; fileRef = 10B880CB24982DB800D422E3 /* MyUtils.swift */; };
+		10B880D224982FFE00D422E3 /* Mario-coin-sound.mp3 in Resources */ = {isa = PBXBuildFile; fileRef = 10B880CE24982FFE00D422E3 /* Mario-coin-sound.mp3 */; };
+		10B880D324982FFE00D422E3 /* jumpSound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 10B880CF24982FFE00D422E3 /* jumpSound.wav */; };
+		10B880D424982FFE00D422E3 /* loselifeSound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 10B880D024982FFE00D422E3 /* loselifeSound.wav */; };
+		10B880D524982FFE00D422E3 /* BgSound.wav in Resources */ = {isa = PBXBuildFile; fileRef = 10B880D124982FFE00D422E3 /* BgSound.wav */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,6 +34,10 @@
 		10B880C32498292100D422E3 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		10B880C52498292100D422E3 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		10B880CB24982DB800D422E3 /* MyUtils.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MyUtils.swift; sourceTree = "<group>"; };
+		10B880CE24982FFE00D422E3 /* Mario-coin-sound.mp3 */ = {isa = PBXFileReference; lastKnownFileType = audio.mp3; path = "Mario-coin-sound.mp3"; sourceTree = "<group>"; };
+		10B880CF24982FFE00D422E3 /* jumpSound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = jumpSound.wav; sourceTree = "<group>"; };
+		10B880D024982FFE00D422E3 /* loselifeSound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = loselifeSound.wav; sourceTree = "<group>"; };
+		10B880D124982FFE00D422E3 /* BgSound.wav */ = {isa = PBXFileReference; lastKnownFileType = audio.wav; path = BgSound.wav; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -68,12 +76,24 @@
 				10B880B92498291D00D422E3 /* GameScene.swift */,
 				10B880CB24982DB800D422E3 /* MyUtils.swift */,
 				10B880BB2498291D00D422E3 /* GameViewController.swift */,
+				10B880CD24982FFE00D422E3 /* sounds */,
 				10B880BD2498291D00D422E3 /* Main.storyboard */,
 				10B880C02498292100D422E3 /* Assets.xcassets */,
 				10B880C22498292100D422E3 /* LaunchScreen.storyboard */,
 				10B880C52498292100D422E3 /* Info.plist */,
 			);
 			path = MarioRun;
+			sourceTree = "<group>";
+		};
+		10B880CD24982FFE00D422E3 /* sounds */ = {
+			isa = PBXGroup;
+			children = (
+				10B880CE24982FFE00D422E3 /* Mario-coin-sound.mp3 */,
+				10B880CF24982FFE00D422E3 /* jumpSound.wav */,
+				10B880D024982FFE00D422E3 /* loselifeSound.wav */,
+				10B880D124982FFE00D422E3 /* BgSound.wav */,
+			);
+			path = sounds;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -134,10 +154,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				10B880D324982FFE00D422E3 /* jumpSound.wav in Resources */,
+				10B880D424982FFE00D422E3 /* loselifeSound.wav in Resources */,
 				10B880BF2498291D00D422E3 /* Main.storyboard in Resources */,
 				10B880B62498291D00D422E3 /* GameScene.sks in Resources */,
 				10B880C12498292100D422E3 /* Assets.xcassets in Resources */,
 				10B880C42498292100D422E3 /* LaunchScreen.storyboard in Resources */,
+				10B880D224982FFE00D422E3 /* Mario-coin-sound.mp3 in Resources */,
+				10B880D524982FFE00D422E3 /* BgSound.wav in Resources */,
 				10B880B82498291D00D422E3 /* Actions.sks in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
