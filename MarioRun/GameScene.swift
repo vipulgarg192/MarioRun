@@ -63,24 +63,57 @@ class GameScene: SKScene {
     
     
     override func didMove(to view: SKView) {
-        playBackgroundMusic(filename: "BgSound.wav")
+//        playBackgroundMusic(filename: "BgSound.wav")
         createBackground()
         hero.position = CGPoint(x: 400, y: 465)
         hero.zPosition = 100
         addChild(hero)
         hero.run(SKAction.repeatForever(marioAnimation))
         
+        run(SKAction.repeatForever(
+          SKAction.sequence([SKAction.run() { [weak self] in
+                          self?.spawnEnemy()
+                        },
+                        SKAction.wait(forDuration: 2.0)])))
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
+
+    func touchDown(atPoint pos: CGPoint) {
+        print("jump")
+        jump()
+    }
+
+    func jump() {
+        let jumpUpAction = SKAction.moveBy(x: 0, y: 300, duration: 0.3)
+        // move down 20
+        let jumpDownAction = SKAction.moveBy(x: 0, y: -300, duration: 0.6)
+        // sequence of move yup then down
+        let jumpSequence = SKAction.sequence([jumpUpAction, jumpDownAction])
+
+        // make player run sequence
+        hero.run(jumpSequence)
+//        hero.texture = SKTexture(imageNamed: "mario1")
+//        hero.physicsBody?.applyImpulse(CGVector(dx: 600, dy: 500))
+    }
+
+    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
+    }
+
+    func touchUp(atPoint pos: CGPoint) {
+        hero.texture = SKTexture(imageNamed: "mario1")
+    }
+
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
       
     }
     
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-    }
+   
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
     }
@@ -100,7 +133,8 @@ class GameScene: SKScene {
         // Update entities
         self.lastUpdateTime = currentTime
         
-
+        moveCamera()
+    
     }
     
     
@@ -131,59 +165,74 @@ class GameScene: SKScene {
                  }
        }
     
+    func spawnEnemy() {
+      let enemy = SKSpriteNode(imageNamed: "Enemy")
+      enemy.position = CGPoint(
+        x: self.playableRect.width + enemy.size.width/2,
+        y: 460)
+      enemy.zPosition = 50
+      enemy.name = "Enemy"
+      addChild(enemy)
+      
+      let actionMove =
+        SKAction.moveBy(x: -(size.width + enemy.size.width), y: 0, duration: 2.0)
+      let actionRemove = SKAction.removeFromParent()
+      enemy.run(SKAction.sequence([actionMove, actionRemove]))
+    }
     
-//    func backgroundNode() -> SKSpriteNode {
-//      // 1
-//      let backgroundNode = SKSpriteNode()
-//      backgroundNode.anchorPoint = CGPoint.zero
-//      backgroundNode.name = "bakground"
-//
-//      // 2
-//      let background1 = SKSpriteNode(imageNamed: "bakground")
-//      background1.anchorPoint = CGPoint.zero
-//        background1.position = CGPoint(x: 0.5, y: 0.5)
-//      backgroundNode.addChild(background1)
-//
-//      // 3
-//      let background2 = SKSpriteNode(imageNamed: "bakground")
-//      background2.anchorPoint = CGPoint.zero
-//      background2.position =
-//        CGPoint(x: background1.size.width, y: 0.5)
-//      backgroundNode.addChild(background2)
-//
-//      // 4
-//      backgroundNode.size = CGSize(
-//        width: background1.size.width + background2.size.width,
-//        height: background1.size.height)
-//      return backgroundNode
-//    }
     
-//    func moveCamera() {
-//      let backgroundVelocity =
-//        CGPoint(x: cameraMovePointsPerSec, y: 0)
-//      let amountToMove = backgroundVelocity * CGFloat(dt)
-//      cameraNode.position += amountToMove
+    func backgroundNode() -> SKSpriteNode {
+      // 1
+      let backgroundNode = SKSpriteNode()
+      backgroundNode.anchorPoint = CGPoint.zero
+      backgroundNode.name = "bakground"
+
+      // 2
+      let background1 = SKSpriteNode(imageNamed: "bakground")
+      background1.anchorPoint = CGPoint.zero
+        background1.position = CGPoint(x: 0.5, y: 0.5)
+      backgroundNode.addChild(background1)
+
+      // 3
+      let background2 = SKSpriteNode(imageNamed: "bakground")
+      background2.anchorPoint = CGPoint.zero
+      background2.position =
+        CGPoint(x: background1.size.width, y: 0.5)
+      backgroundNode.addChild(background2)
+
+      // 4
+      backgroundNode.size = CGSize(
+        width: background1.size.width + background2.size.width,
+        height: background1.size.height)
+      return backgroundNode
+    }
+    
+    func moveCamera() {
+      let backgroundVelocity =
+        CGPoint(x: cameraMovePointsPerSec, y: 0)
+      let amountToMove = backgroundVelocity * CGFloat(dt)
+      cameraNode.position += amountToMove
+
+      enumerateChildNodes(withName: "background") { node, _ in
+        let background = node as! SKSpriteNode
+        if background.position.x + background.size.width <
+            self.cameraRect.origin.x {
+          background.position = CGPoint(
+            x: background.position.x + background.size.width*2,
+            y: background.position.y)
+        }
+      }
+    }
 //
-//      enumerateChildNodes(withName: "background") { node, _ in
-//        let background = node as! SKSpriteNode
-//        if background.position.x + background.size.width <
-//            self.cameraRect.origin.x {
-//          background.position = CGPoint(
-//            x: background.position.x + background.size.width*2,
-//            y: background.position.y)
-//        }
-//      }
-//    }
-//
-//    var cameraRect : CGRect {
-//       let x = cameraNode.position.x - size.width/2
-//           + (size.width - playableRect.width)/2
-//       let y = cameraNode.position.y - size.height/2
-//           + (size.height - playableRect.height)/2
-//       return CGRect(
-//         x: x,
-//         y: y,
-//         width: playableRect.width,
-//         height: playableRect.height)
-//     }
+    var cameraRect : CGRect {
+       let x = cameraNode.position.x - size.width/2
+           + (size.width - playableRect.width)/2
+       let y = cameraNode.position.y - size.height/2
+           + (size.height - playableRect.height)/2
+       return CGRect(
+         x: x,
+         y: y,
+         width: playableRect.width,
+         height: playableRect.height)
+     }
 }
