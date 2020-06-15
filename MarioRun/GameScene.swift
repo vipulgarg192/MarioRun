@@ -11,81 +11,77 @@ import GameplayKit
 
 class GameScene: SKScene {
     
-    var entities = [GKEntity]()
-    var graphs = [String : GKGraph]()
-    
-    private var lastUpdateTime : TimeInterval = 0
-    private var label : SKLabelNode?
-    private var spinnyNode : SKShapeNode?
-    
-    override func sceneDidLoad() {
+    let zombie = SKSpriteNode(imageNamed: "mario1")
+    var lastUpdateTime: TimeInterval = 0
+    var dt: TimeInterval = 0
+    let zombieMovePointsPerSec: CGFloat = 480.0
+    var velocity = CGPoint.zero
+    let playableRect: CGRect
+    let marioAnimation: SKAction
 
-        self.lastUpdateTime = 0
-        
-        // Get label node from scene and store it for use later
-        self.label = self.childNode(withName: "//helloLabel") as? SKLabelNode
-        if let label = self.label {
-            label.alpha = 0.0
-            label.run(SKAction.fadeIn(withDuration: 2.0))
+    
+  
+    
+    override init(size: CGSize) {
+        let maxAspectRatio:CGFloat = 16.0/9.0
+        let playableHeight = size.width / maxAspectRatio
+        let playableMargin = (size.height-playableHeight)/2.0
+        playableRect = CGRect(x: 0, y: playableMargin,
+                          width: size.width,
+                          height: playableHeight)
+    
+        // 1
+        var textures:[SKTexture] = []
+        // 2
+        for i in 1...12 {
+          textures.append(SKTexture(imageNamed: "mario\(i)"))
         }
-        
-        // Create shape node to use during mouse interaction
-        let w = (self.size.width + self.size.height) * 0.05
-        self.spinnyNode = SKShapeNode.init(rectOf: CGSize.init(width: w, height: w), cornerRadius: w * 0.3)
-        
-        if let spinnyNode = self.spinnyNode {
-            spinnyNode.lineWidth = 2.5
-            
-            spinnyNode.run(SKAction.repeatForever(SKAction.rotate(byAngle: CGFloat(Double.pi), duration: 1)))
-            spinnyNode.run(SKAction.sequence([SKAction.wait(forDuration: 0.5),
-                                              SKAction.fadeOut(withDuration: 0.5),
-                                              SKAction.removeFromParent()]))
-        }
+        // 3
+        textures.append(textures[11])
+        textures.append(textures[10])
+        textures.append(textures[9])
+        textures.append(textures[8])
+        textures.append(textures[7])
+        textures.append(textures[6])
+        textures.append(textures[5])
+        textures.append(textures[4])
+        textures.append(textures[3])
+        textures.append(textures[2])
+
+        // 4
+        marioAnimation = SKAction.animate(with: textures,
+          timePerFrame: 0.1)
+      
+        super.init(size: size)
+    }
+    
+    required init?(coder aDecoder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
     }
     
     
-    func touchDown(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.green
-            self.addChild(n)
-        }
-    }
-    
-    func touchMoved(toPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.blue
-            self.addChild(n)
-        }
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-        if let n = self.spinnyNode?.copy() as! SKShapeNode? {
-            n.position = pos
-            n.strokeColor = SKColor.red
-            self.addChild(n)
-        }
-    }
+    override func didMove(to view: SKView) {
+        for i in 0...1 {
+          let background = backgroundNode()
+          background.anchorPoint = CGPoint.zero
+          background.position =
+            CGPoint(x: CGFloat(i)*background.size.width, y: 0.5)
+          background.name = "bakground"
+          background.zPosition = -1
+          addChild(background)
+        }    }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if let label = self.label {
-            label.run(SKAction.init(named: "Pulse")!, withKey: "fadeInOut")
-        }
-        
-        for t in touches { self.touchDown(atPoint: t.location(in: self)) }
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
+      
     }
     
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
     }
     
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
     }
     
     
@@ -101,10 +97,72 @@ class GameScene: SKScene {
         let dt = currentTime - self.lastUpdateTime
         
         // Update entities
-        for entity in self.entities {
-            entity.update(deltaTime: dt)
-        }
-        
         self.lastUpdateTime = currentTime
     }
+    
+    
+    func debugDrawPlayableArea() {
+       let shape = SKShapeNode()
+       let path = CGMutablePath()
+       path.addRect(playableRect)
+       shape.path = path
+       shape.strokeColor = SKColor.red
+       shape.lineWidth = 4.0
+       addChild(shape)
+     }
+    
+    func backgroundNode() -> SKSpriteNode {
+      // 1
+      let backgroundNode = SKSpriteNode()
+      backgroundNode.anchorPoint = CGPoint.zero
+      backgroundNode.name = "bakground"
+
+      // 2
+      let background1 = SKSpriteNode(imageNamed: "bakground")
+      background1.anchorPoint = CGPoint.zero
+        background1.position = CGPoint(x: 0.5, y: 0.5)
+      backgroundNode.addChild(background1)
+      
+      // 3
+      let background2 = SKSpriteNode(imageNamed: "bakground")
+      background2.anchorPoint = CGPoint.zero
+      background2.position =
+        CGPoint(x: background1.size.width, y: 0.5)
+      backgroundNode.addChild(background2)
+
+      // 4
+      backgroundNode.size = CGSize(
+        width: background1.size.width + background2.size.width,
+        height: background1.size.height)
+      return backgroundNode
+    }
+    
+    func moveCamera() {
+      let backgroundVelocity =
+        CGPoint(x: cameraMovePointsPerSec, y: 0)
+      let amountToMove = backgroundVelocity * CGFloat(dt)
+      cameraNode.position += amountToMove
+      
+      enumerateChildNodes(withName: "background") { node, _ in
+        let background = node as! SKSpriteNode
+        if background.position.x + background.size.width <
+            self.cameraRect.origin.x {
+          background.position = CGPoint(
+            x: background.position.x + background.size.width*2,
+            y: background.position.y)
+        }
+      }
+    }
+    
+    var cameraRect : CGRect {
+       let x = cameraNode.position.x - size.width/2
+           + (size.width - playableRect.width)/2
+       let y = cameraNode.position.y - size.height/2
+           + (size.height - playableRect.height)/2
+       return CGRect(
+         x: x,
+         y: y,
+         width: playableRect.width,
+         height: playableRect.height)
+     }
 }
