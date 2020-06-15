@@ -22,6 +22,15 @@ class GameScene: SKScene {
     let cameraNode = SKCameraNode()
     let cameraMovePointsPerSec: CGFloat = 200.0
 
+    
+    var invincible = false
+    var lives = 5
+    var gameOver = false
+    
+    let livesLabel = SKLabelNode(fontNamed: "Chalkduster")
+    
+    let enemyCollisionSound: SKAction = SKAction.playSoundFileNamed(
+       "loselofeSound.wav", waitForCompletion: false)
   
     
     override init(size: CGSize) {
@@ -76,6 +85,20 @@ class GameScene: SKScene {
                         },
                         SKAction.wait(forDuration: 2.0)])))
         
+        
+        
+        livesLabel.text = "Lives: X"
+        livesLabel.fontColor = SKColor.black
+        livesLabel.fontSize = 100
+        livesLabel.zPosition = 150
+        livesLabel.horizontalAlignmentMode = .left
+        livesLabel.verticalAlignmentMode = .bottom
+        livesLabel.position = CGPoint(
+            x: -playableRect.size.width/2 + CGFloat(20),
+            y: -playableRect.size.height/2 + CGFloat(20))
+        livesLabel.zPosition = 2
+        addChild(livesLabel)
+        
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -88,6 +111,7 @@ class GameScene: SKScene {
     }
 
     func jump() {
+        playBackgroundMusic(filename: "jumpSound.wav")
         let jumpUpAction = SKAction.moveBy(x: 0, y: 300, duration: 0.3)
         // move down 20
         let jumpDownAction = SKAction.moveBy(x: 0, y: -300, duration: 0.6)
@@ -106,6 +130,8 @@ class GameScene: SKScene {
 
     func touchUp(atPoint pos: CGPoint) {
         hero.texture = SKTexture(imageNamed: "mario1")
+        backgroundMusicPlayer.stop()
+        playBackgroundMusic(filename: "BgSound.wav")
     }
 
     
@@ -136,6 +162,10 @@ class GameScene: SKScene {
         moveCamera()
     
     }
+    
+    override func didEvaluateActions() {
+       checkCollisions()
+     }
     
     
     func debugDrawPlayableArea() {
@@ -178,6 +208,46 @@ class GameScene: SKScene {
         SKAction.moveBy(x: -(size.width + enemy.size.width), y: 0, duration: 2.0)
       let actionRemove = SKAction.removeFromParent()
       enemy.run(SKAction.sequence([actionMove, actionRemove]))
+    }
+    
+    func checkCollisions() {
+      
+       
+       if invincible {
+         return
+       }
+      
+       var hitEnemies: [SKSpriteNode] = []
+       enumerateChildNodes(withName: "enemy") { node, _ in
+         let enemy = node as! SKSpriteNode
+         if node.frame.insetBy(dx: 20, dy: 20).intersects(
+           self.hero.frame) {
+           hitEnemies.append(enemy)
+         }
+       }
+       for enemy in hitEnemies {
+         zombieHit(enemy: enemy)
+       }
+     }
+    
+    func zombieHit(enemy: SKSpriteNode) {
+      invincible = true
+      let blinkTimes = 10.0
+      let duration = 3.0
+      let blinkAction = SKAction.customAction(withDuration: duration) { node, elapsedTime in
+        let slice = duration / blinkTimes
+        let remainder = Double(elapsedTime).truncatingRemainder(
+          dividingBy: slice)
+        node.isHidden = remainder > slice / 2
+      }
+      let setHidden = SKAction.run() { [weak self] in
+        self?.hero.isHidden = false
+        self?.invincible = false
+      }
+      hero.run(SKAction.sequence([blinkAction, setHidden]))
+      
+      run(enemyCollisionSound)
+      lives -= 1
     }
     
     
