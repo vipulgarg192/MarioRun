@@ -85,19 +85,13 @@ class GameScene: SKScene {
                         },
                         SKAction.wait(forDuration: 2.0)])))
         
-        
-        
-        livesLabel.text = "Lives: X"
-        livesLabel.fontColor = SKColor.black
-        livesLabel.fontSize = 100
+         livesLabel.text = "Lives: X"
+         livesLabel.fontSize = 100
         livesLabel.zPosition = 150
-        livesLabel.horizontalAlignmentMode = .left
-        livesLabel.verticalAlignmentMode = .bottom
-        livesLabel.position = CGPoint(
-            x: -playableRect.size.width/2 + CGFloat(20),
-            y: -playableRect.size.height/2 + CGFloat(20))
-        livesLabel.zPosition = 2
-        addChild(livesLabel)
+         livesLabel.position = CGPoint(
+                      x: playableRect.size.width - CGFloat(320),
+                       y: playableRect.size.height - CGFloat(20))
+                self.addChild(livesLabel)
         
     }
     
