@@ -154,6 +154,20 @@ class GameScene: SKScene {
         self.lastUpdateTime = currentTime
         
         moveCamera()
+        
+        livesLabel.text = "Lives: \(lives)"
+           
+           if lives <= 0 && !gameOver {
+//             gameOver = true
+             print("You lose!")
+            let gameOverScene = GameOverSceneView(size: size, won: false)
+                 gameOverScene.scaleMode = scaleMode
+                 // 2
+                 let reveal = SKTransition.flipHorizontal(withDuration: 0.5)
+                 // 3
+                 view?.presentScene(gameOverScene, transition: reveal)
+            
+           }
     
     }
     
@@ -193,9 +207,10 @@ class GameScene: SKScene {
       let enemy = SKSpriteNode(imageNamed: "Enemy")
       enemy.position = CGPoint(
         x: self.playableRect.width + enemy.size.width/2,
-        y: 460)
+        y: 410)
       enemy.zPosition = 50
       enemy.name = "Enemy"
+        enemy.setScale(0.6)
       addChild(enemy)
       
       let actionMove =
@@ -212,7 +227,7 @@ class GameScene: SKScene {
        }
       
        var hitEnemies: [SKSpriteNode] = []
-       enumerateChildNodes(withName: "enemy") { node, _ in
+       enumerateChildNodes(withName: "Enemy") { node, _ in
          let enemy = node as! SKSpriteNode
          if node.frame.insetBy(dx: 20, dy: 20).intersects(
            self.hero.frame) {
