@@ -25,13 +25,16 @@ class GameScene: SKScene {
     
     var invincible = false
     var lives = 5
+    var coin = 0
     var gameOver = false
     
     let livesLabel = SKLabelNode(fontNamed: "Chalkduster")
+    let CoinLabel = SKLabelNode(fontNamed: "Chalkduster")
     
     let enemyCollisionSound: SKAction = SKAction.playSoundFileNamed(
        "loselofeSound.wav", waitForCompletion: false)
-  
+  let coinCollisionSound: SKAction = SKAction.playSoundFileNamed(
+       "Mario-coin-sound.wav", waitForCompletion: false)
     
     override init(size: CGSize) {
         let maxAspectRatio:CGFloat = 16.0/9.0
@@ -85,6 +88,13 @@ class GameScene: SKScene {
                         },
                         SKAction.wait(forDuration: 2.0)])))
         
+        run(SKAction.repeatForever(
+                 SKAction.sequence([SKAction.run() { [weak self] in
+                                 self?.spawnCoin()
+                               },
+                                    SKAction.wait(forDuration: 2.0)])))
+        
+   
          livesLabel.text = "Lives: X"
          livesLabel.fontSize = 100
         livesLabel.zPosition = 150
@@ -92,6 +102,18 @@ class GameScene: SKScene {
                       x: playableRect.size.width - CGFloat(320),
                        y: playableRect.size.height - CGFloat(20))
                 self.addChild(livesLabel)
+        
+        CoinLabel.text = "Coins: X"
+                CoinLabel.fontSize = 100
+               CoinLabel.zPosition = 150
+                CoinLabel.position = CGPoint(
+                             x:  CGFloat(320),
+                              y: playableRect.size.height - CGFloat(20))
+                       self.addChild(CoinLabel)
+               
+        
+        
+        
         
     }
     
@@ -156,7 +178,8 @@ class GameScene: SKScene {
         moveCamera()
         
         livesLabel.text = "Lives: \(lives)"
-           
+           CoinLabel.text = "Coins: \(coin)"
+
            if lives <= 0 && !gameOver {
 //             gameOver = true
              print("You lose!")
@@ -168,6 +191,7 @@ class GameScene: SKScene {
                  view?.presentScene(gameOverScene, transition: reveal)
             
            }
+        
     
     }
     
@@ -203,6 +227,23 @@ class GameScene: SKScene {
                  }
        }
     
+    func spawnCoin() {
+      let coin = SKSpriteNode(imageNamed: "coin")
+      coin.position = CGPoint(
+        x: self.playableRect.width + coin.size.width/2,
+        y: CGFloat.random(
+            min:  600,
+            max:  self.playableRect.height - 300))
+      coin.zPosition = 10
+      coin.name = "coin"
+      addChild(coin)
+      
+      let actionMove =
+        SKAction.moveBy(x: -(size.width + coin.size.width), y: 0, duration: 1.5)
+      let actionRemove = SKAction.removeFromParent()
+      coin.run(SKAction.sequence([actionMove, actionRemove]))
+    }
+    
     func spawnEnemy() {
       let enemy = SKSpriteNode(imageNamed: "Enemy")
       enemy.position = CGPoint(
@@ -220,7 +261,21 @@ class GameScene: SKScene {
     }
     
     func checkCollisions() {
-      
+        
+        
+        var hitCoins: [SKSpriteNode] = []
+        enumerateChildNodes(withName: "coin") { node, _ in
+          let coin = node as! SKSpriteNode
+          if node.frame.insetBy(dx: 20, dy: 20).intersects(
+            self.hero.frame) {
+            hitCoins.append(coin)
+          }
+        }
+        for coin in hitCoins {
+          coinHit(enemy: coin)
+        }
+        
+        
        
        if invincible {
          return
@@ -238,6 +293,13 @@ class GameScene: SKScene {
          zombieHit(enemy: enemy)
        }
      }
+    
+    func coinHit(enemy: SKSpriteNode) {
+         
+         run(coinCollisionSound)
+        enemy.removeFromParent()
+        coin += 1
+       }
     
     func zombieHit(enemy: SKSpriteNode) {
       invincible = true
